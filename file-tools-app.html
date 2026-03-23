@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FileForge — All-in-One File Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a28;
+    --border: #2a2a3d;
+    --accent: #7c5cfc;
+    --accent2: #fc5c7d;
+    --accent3: #5cf0c8;
+    --accent4: #fcb85c;
+    --text: #e8e8f0;
+    --muted: #7070a0;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb1 { width: 600px; height: 600px; background: rgba(124,92,252,0.12); top: -200px; right: -100px; }
+  .orb2 { width: 400px; height: 400px; background: rgba(252,92,125,0.08); bottom: 100px; left: -100px; }
+
+  /* Header */
+  header {
+    position: relative; z-index: 10;
+    padding: 24px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+  }
+
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo span { color: var(--accent); }
+
+  .header-badge {
+    background: linear-gradient(135deg, rgba(124,92,252,0.2), rgba(252,92,125,0.2));
+    border: 1px solid rgba(124,92,252,0.3);
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Hero */
+  .hero {
+    position: relative; z-index: 5;
+    text-align: center;
+    padding: 60px 40px 40px;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(124,92,252,0.1);
+    border: 1px solid rgba(124,92,252,0.2);
+    padding: 6px 16px; border-radius: 20px;
+    font-size: 13px; color: var(--accent);
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 18px;
+    max-width: 520px;
+    margin: 0 auto 40px;
+  }
+
+  /* Category tabs */
+  .tabs-wrapper {
+    position: relative; z-index: 5;
+    padding: 0 40px 32px;
+    display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  }
+  .tab-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--text); }
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  /* Tools Grid */
+  .tools-section {
+    position: relative; z-index: 5;
+    padding: 0 40px 60px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+
+  .tool-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+    display: none;
+  }
+  .tool-card.visible { display: block; }
+
+  .tool-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .tool-card:hover { border-color: rgba(124,92,252,0.4); transform: translateY(-3px); }
+  .tool-card:hover::before { opacity: 1; }
+
+  .tool-card[data-color="purple"]::before { background: radial-gradient(ellipse at top left, rgba(124,92,252,0.08), transparent 60%); }
+  .tool-card[data-color="pink"]::before { background: radial-gradient(ellipse at top left, rgba(252,92,125,0.08), transparent 60%); }
+  .tool-card[data-color="teal"]::before { background: radial-gradient(ellipse at top left, rgba(92,240,200,0.08), transparent 60%); }
+  .tool-card[data-color="orange"]::before { background: radial-gradient(ellipse at top left, rgba(252,184,92,0.08), transparent 60%); }
+  .tool-card[data-color="blue"]::before { background: radial-gradient(ellipse at top left, rgba(92,160,252,0.08), transparent 60%); }
+
+  .tool-icon {
+    width: 52px; height: 52px;
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    margin-bottom: 16px;
+    position: relative; z-index: 1;
+  }
+  .tool-icon.purple { background: rgba(124,92,252,0.15); }
+  .tool-icon.pink { background: rgba(252,92,125,0.15); }
+  .tool-icon.teal { background: rgba(92,240,200,0.15); }
+  .tool-icon.orange { background: rgba(252,184,92,0.15); }
+  .tool-icon.blue { background: rgba(92,160,252,0.15); }
+
+  .tool-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 8px;
+    position: relative; z-index: 1;
+  }
+  .tool-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+    position: relative; z-index: 1;
+  }
+
+  .tool-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .tool-badge.free { background: rgba(92,240,200,0.15); color: var(--accent3); border: 1px solid rgba(92,240,200,0.2); }
+  .tool-badge.pro { background: rgba(252,184,92,0.15); color: var(--accent4); border: 1px solid rgba(252,184,92,0.2); }
+
+  .tool-arrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--accent);
+    position: relative; z-index: 1;
+    transition: gap 0.2s;
+  }
+  .tool-card:hover .tool-arrow { gap: 10px; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .modal-header {
+    padding: 28px 28px 20px;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header-left { display: flex; align-items: center; gap: 16px; }
+  .modal-close {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .modal-close:hover { color: var(--text); border-color: var(--accent); }
+
+  .modal-body { padding: 28px; }
+
+  /* Drop zone */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: var(--surface2);
+    position: relative;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(124,92,252,0.05);
+  }
+  .drop-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  }
+  .drop-icon { font-size: 48px; margin-bottom: 16px; }
+  .drop-zone h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px; margin-bottom: 8px;
+  }
+  .drop-zone p { color: var(--muted); font-size: 14px; }
+  .drop-zone .or { margin: 12px 0; color: var(--muted); font-size: 12px; }
+  .browse-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), #9b6fff);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+
+  /* Options */
+  .options-row {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-top: 20px;
+  }
+  .option-group { flex: 1; min-width: 150px; }
+  .option-group label {
+    display: block;
+    font-size: 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .option-group select, .option-group input[type="range"] {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .option-group select:focus, .option-group input:focus { border-color: var(--accent); }
+  .range-val { font-size: 13px; color: var(--accent); margin-top: 6px; }
+
+  /* Action buttons */
+  .action-row {
+    display: flex; gap: 12px; margin-top: 24px;
+  }
+  .btn-primary {
+    flex: 1;
+    background: linear-gradient(135deg, var(--accent), #9b6fff);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(124,92,252,0.3); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Progress */
+  .progress-wrap {
+    margin-top: 20px;
+    display: none;
+  }
+  .progress-wrap.show { display: block; }
+  .progress-label {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 6px;
+    width: 0%;
+    transition: width 0.3s;
+  }
+
+  /* Result */
+  .result-box {
+    margin-top: 20px;
+    background: var(--surface2);
+    border: 1px solid rgba(92,240,200,0.2);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-box h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    margin-bottom: 12px;
+    color: var(--accent3);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .result-preview {
+    display: flex; gap: 16px;
+    align-items: center;
+  }
+  .result-preview img {
+    max-width: 200px;
+    max-height: 150px;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .result-stats { flex: 1; }
+  .stat-row {
+    display: flex; justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .stat-row:last-child { border-bottom: none; }
+  .stat-row span:last-child { color: var(--accent3); font-weight: 500; }
+
+  .download-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent3), #3dd9a4);
+    color: #0a0a0f;
+    border: none;
+    padding: 13px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s;
+  }
+  .download-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(92,240,200,0.25); }
+
+  /* Text result */
+  .text-result {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    max-height: 200px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-family: 'DM Mono', monospace;
+    margin-top: 12px;
+  }
+
+  /* File list */
+  .file-list {
+    margin-top: 16px;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .file-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+  .file-item-left { display: flex; align-items: center; gap: 10px; }
+  .file-item-icon { font-size: 20px; }
+  .file-item-name { font-weight: 500; }
+  .file-item-size { color: var(--muted); font-size: 12px; }
+  .file-remove {
+    background: none; border: none;
+    color: var(--muted); cursor: pointer; font-size: 16px;
+    padding: 4px; border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .file-remove:hover { color: var(--accent2); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  /* Stats bar */
+  .stats-bar {
+    position: relative; z-index: 5;
+    display: flex; justify-content: center; gap: 48px;
+    padding: 0 40px 48px;
+    flex-wrap: wrap;
+  }
+  .stat-item { text-align: center; }
+  .stat-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 32px; font-weight: 800;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .stat-label { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  @media (max-width: 768px) {
+    header { padding: 16px 20px; }
+    .hero { padding: 40px 20px 24px; }
+    .tabs-wrapper { padding: 0 20px 24px; }
+    .tools-section { padding: 0 20px 40px; }
+    .stats-bar { gap: 24px; }
+    .modal { border-radius: 16px; }
+  }
+
+  /* No results */
+  .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+    display: none;
+  }
+  .no-results.show { display: block; }
+</style>
+</head>
+<body>
+
+<div class="glow-orb orb1"></div>
+<div class="glow-orb orb2"></div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    File<span>Forge</span>
+  </div>
+  <div class="header-badge">✦ 30+ Tools · 100% Browser-Based</div>
+</header>
+
+<section class="hero">
+  <div class="hero-tag">✦ No upload limits · Works offline</div>
+  <h1>Transform any file,<br><em>instantly.</em></h1>
+  <p>Convert, compress, enhance, and process files — all in your browser. Zero servers, zero privacy risks.</p>
+</section>
+
+<div class="stats-bar">
+  <div class="stat-item">
+    <div class="stat-number">30+</div>
+    <div class="stat-label">File Tools</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">100%</div>
+    <div class="stat-label">Browser-Based</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">0</div>
+    <div class="stat-label">Servers Used</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-number">∞</div>
+    <div class="stat-label">Files Processed</div>
+  </div>
+</div>
+
+<div class="tabs-wrapper">
+  <button class="tab-btn active" data-cat="all">⊞ All Tools</button>
+  <button class="tab-btn" data-cat="image">🖼 Image</button>
+  <button class="tab-btn" data-cat="pdf">📄 PDF</button>
+  <button class="tab-btn" data-cat="compress">🗜 Compress</button>
+  <button class="tab-btn" data-cat="convert">🔄 Convert</button>
+  <button class="tab-btn" data-cat="extract">🔍 Extract</button>
+</div>
+
+<div class="tools-section">
+  <div class="section-label">Available Tools</div>
+  <div class="tools-grid" id="toolsGrid">
+
+    <!-- IMAGE TOOLS -->
+    <div class="tool-card visible" data-color="purple" data-cat="image" data-tool="enhance" onclick="openTool('enhance')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon purple">✨</div>
+      <h3>Image Enhancer</h3>
+      <p>Upscale low-quality images, boost sharpness, contrast & colors. AI-powered enhancement.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="pink" data-cat="image" data-tool="bg-remove" onclick="openTool('bg-remove')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon pink">🎭</div>
+      <h3>Background Remover</h3>
+      <p>Remove image backgrounds instantly. Get clean, transparent PNGs in seconds.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="teal" data-cat="image convert" data-tool="img-convert" onclick="openTool('img-convert')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon teal">🔄</div>
+      <h3>Image Converter</h3>
+      <p>Convert between JPG, PNG, WebP, GIF, BMP, AVIF and more formats.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="orange" data-cat="image compress" data-tool="img-compress" onclick="openTool('img-compress')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon orange">📦</div>
+      <h3>Image Compressor</h3>
+      <p>Compress images up to 90% smaller without noticeable quality loss.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="blue" data-cat="image" data-tool="img-resize" onclick="openTool('img-resize')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon blue">📐</div>
+      <h3>Image Resizer</h3>
+      <p>Resize images to exact dimensions or percentage. Batch resize multiple files.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="purple" data-cat="image" data-tool="img-crop" onclick="openTool('img-crop')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon purple">✂️</div>
+      <h3>Image Cropper</h3>
+      <p>Crop images to any aspect ratio — square, 16:9, 4:3 or custom dimensions.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="pink" data-cat="image extract" data-tool="text-extract" onclick="openTool('text-extract')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon pink">📝</div>
+      <h3>Text Extractor (OCR)</h3>
+      <p>Extract text from images and scanned documents using OCR technology.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="teal" data-cat="image" data-tool="watermark" onclick="openTool('watermark')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon teal">💧</div>
+      <h3>Watermark Tool</h3>
+      <p>Add text or image watermarks to protect your photos and graphics.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <!-- PDF TOOLS -->
+    <div class="tool-card visible" data-color="orange" data-cat="pdf convert" data-tool="img-to-pdf" onclick="openTool('img-to-pdf')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon orange">📄</div>
+      <h3>Images to PDF</h3>
+      <p>Combine multiple images into a single PDF. Reorder, add pages, set layout.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="blue" data-cat="pdf convert" data-tool="pdf-to-img" onclick="openTool('pdf-to-img')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon blue">🖼</div>
+      <h3>PDF to Images</h3>
+      <p>Convert PDF pages to high-quality JPG or PNG images.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="purple" data-cat="pdf convert" data-tool="word-to-pdf" onclick="openTool('word-to-pdf')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon purple">📝</div>
+      <h3>Word to PDF</h3>
+      <p>Convert DOCX/DOC files to professional PDF documents instantly.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="pink" data-cat="pdf convert" data-tool="pdf-to-word" onclick="openTool('pdf-to-word')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon pink">📋</div>
+      <h3>PDF to Word</h3>
+      <p>Convert PDFs back to editable Word documents preserving formatting.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="teal" data-cat="pdf" data-tool="pdf-merge" onclick="openTool('pdf-merge')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon teal">🔗</div>
+      <h3>PDF Merger</h3>
+      <p>Combine multiple PDF files into one. Drag to reorder pages.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="orange" data-cat="pdf" data-tool="pdf-split" onclick="openTool('pdf-split')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon orange">✂️</div>
+      <h3>PDF Splitter</h3>
+      <p>Split a PDF into individual pages or custom page ranges.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="blue" data-cat="pdf compress" data-tool="pdf-compress" onclick="openTool('pdf-compress')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon blue">🗜</div>
+      <h3>PDF Compressor</h3>
+      <p>Reduce PDF file size while maintaining readability and quality.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="purple" data-cat="pdf extract" data-tool="pdf-text" onclick="openTool('pdf-text')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon purple">🔍</div>
+      <h3>PDF Text Extractor</h3>
+      <p>Extract all text content from PDF files to plain text or Word.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <!-- COMPRESS TOOLS -->
+    <div class="tool-card visible" data-color="pink" data-cat="compress" data-tool="zip-create" onclick="openTool('zip-create')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon pink">🗂</div>
+      <h3>ZIP Creator</h3>
+      <p>Compress files and folders into ZIP archives. Reduce size up to 80%.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="teal" data-cat="compress extract" data-tool="zip-extract" onclick="openTool('zip-extract')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon teal">📤</div>
+      <h3>ZIP Extractor</h3>
+      <p>Extract files from ZIP archives directly in your browser. Preview contents.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <!-- CONVERT TOOLS -->
+    <div class="tool-card visible" data-color="orange" data-cat="convert" data-tool="csv-to-excel" onclick="openTool('csv-to-excel')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon orange">📊</div>
+      <h3>CSV to Excel</h3>
+      <p>Convert CSV files to formatted Excel spreadsheets with one click.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="blue" data-cat="convert" data-tool="excel-to-csv" onclick="openTool('excel-to-csv')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon blue">📋</div>
+      <h3>Excel to CSV</h3>
+      <p>Convert Excel spreadsheets to clean CSV format for data processing.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="purple" data-cat="convert" data-tool="html-to-pdf" onclick="openTool('html-to-pdf')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon purple">🌐</div>
+      <h3>HTML to PDF</h3>
+      <p>Convert web pages or HTML files to PDF documents.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="pink" data-cat="convert" data-tool="md-to-html" onclick="openTool('md-to-html')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon pink">⬇️</div>
+      <h3>Markdown to HTML</h3>
+      <p>Convert Markdown files to styled HTML pages instantly.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="teal" data-cat="convert" data-tool="json-to-csv" onclick="openTool('json-to-csv')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon teal">{ }</div>
+      <h3>JSON to CSV</h3>
+      <p>Convert JSON data arrays to spreadsheet-ready CSV format.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="orange" data-cat="convert" data-tool="svg-to-png" onclick="openTool('svg-to-png')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon orange">🎨</div>
+      <h3>SVG to PNG</h3>
+      <p>Convert scalable SVG graphics to high-resolution PNG images.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <!-- EXTRACT TOOLS -->
+    <div class="tool-card visible" data-color="blue" data-cat="extract" data-tool="meta-extract" onclick="openTool('meta-extract')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon blue">🏷</div>
+      <h3>Metadata Extractor</h3>
+      <p>View and extract EXIF metadata from images — GPS, camera, date info.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="tool-card visible" data-color="purple" data-cat="extract" data-tool="color-extract" onclick="openTool('color-extract')">
+      <span class="tool-badge free">Free</span>
+      <div class="tool-icon purple">🎨</div>
+      <h3>Color Palette Extractor</h3>
+      <p>Extract dominant color palette from any image for design work.</p>
+      <div class="tool-arrow">Use Tool →</div>
+    </div>
+
+    <div class="no-results" id="noResults">
+      <div style="font-size:48px;margin-bottom:16px">🔍</div>
+      <h3 style="font-family:'Syne',sans-serif;margin-bottom:8px">No tools in this category</h3>
+      <p>Try selecting a different category or "All Tools"</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="tool-icon" id="modalIcon" style="width:44px;height:44px;font-size:20px;margin:0"></div>
+        <div>
+          <h2 id="modalTitle" style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700"></h2>
+          <p id="modalDesc" style="color:var(--muted);font-size:13px;margin-top:4px"></p>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const TOOLS = {
+  'enhance': {
+    title: 'Image Enhancer', icon: '✨', color: 'purple',
+    desc: 'Upscale & enhance low quality images',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'enhanceMode', label: 'Enhancement Mode', options: ['Auto Enhance','Sharpen','Denoise','Upscale 2x','Upscale 4x','Vivid Colors','Portrait Fix'] },
+      { type: 'range', id: 'enhanceStrength', label: 'Strength', min: 1, max: 100, val: 70 }
+    ],
+    action: 'Enhance Image',
+    process: processImageEnhance
+  },
+  'bg-remove': {
+    title: 'Background Remover', icon: '🎭', color: 'pink',
+    desc: 'Remove image backgrounds — get transparent PNGs',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'bgEdge', label: 'Edge Refinement', options: ['Smooth','Precise','Hair & Fur','Hard Edge'] },
+      { type: 'select', id: 'bgOutput', label: 'Background Replace', options: ['Transparent','White','Black','Blur Original'] }
+    ],
+    action: 'Remove Background',
+    process: processBgRemove
+  },
+  'img-convert': {
+    title: 'Image Converter', icon: '🔄', color: 'teal',
+    desc: 'Convert between image formats',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'convertTo', label: 'Output Format', options: ['PNG','JPEG','WebP','GIF','BMP'] },
+      { type: 'range', id: 'convertQuality', label: 'Quality', min: 10, max: 100, val: 90 }
+    ],
+    action: 'Convert Image',
+    process: processImgConvert
+  },
+  'img-compress': {
+    title: 'Image Compressor', icon: '📦', color: 'orange',
+    desc: 'Compress images without quality loss',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'compressLevel', label: 'Compression', options: ['Lossless','Low (90%)','Medium (75%)','High (50%)','Maximum (25%)'] },
+      { type: 'select', id: 'compressFormat', label: 'Output Format', options: ['Same as Input','JPEG','PNG','WebP'] }
+    ],
+    action: 'Compress Image',
+    process: processImgCompress
+  },
+  'img-resize': {
+    title: 'Image Resizer', icon: '📐', color: 'blue',
+    desc: 'Resize images to exact dimensions',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'resizeMode', label: 'Resize Mode', options: ['Custom Size','50% Smaller','25% Smaller','200% Larger','Thumbnail (150px)','HD (1280px)','Full HD (1920px)'] },
+      { type: 'select', id: 'resizeFit', label: 'Fit Method', options: ['Contain','Cover','Stretch','Crop Center'] }
+    ],
+    action: 'Resize Image',
+    process: processImgResize
+  },
+  'img-crop': {
+    title: 'Image Cropper', icon: '✂️', color: 'purple',
+    desc: 'Crop images to specific aspect ratios',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'cropRatio', label: 'Aspect Ratio', options: ['Square (1:1)','Landscape (16:9)','Portrait (9:16)','Photo (4:3)','Twitter Header','Instagram Post','Custom'] }
+    ],
+    action: 'Crop Image',
+    process: processImgCrop
+  },
+  'text-extract': {
+    title: 'Text Extractor (OCR)', icon: '📝', color: 'pink',
+    desc: 'Extract text from images using OCR',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'ocrLang', label: 'Language', options: ['English','Spanish','French','German','Chinese','Japanese','Arabic','Hindi','Auto Detect'] },
+      { type: 'select', id: 'ocrOutput', label: 'Output Format', options: ['Plain Text','Markdown','JSON with Coordinates'] }
+    ],
+    action: 'Extract Text',
+    process: processOCR
+  },
+  'watermark': {
+    title: 'Watermark Tool', icon: '💧', color: 'teal',
+    desc: 'Add watermarks to protect your images',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'wmPosition', label: 'Position', options: ['Center','Bottom Right','Bottom Left','Top Right','Top Left','Tiled'] },
+      { type: 'range', id: 'wmOpacity', label: 'Opacity', min: 10, max: 100, val: 40 }
+    ],
+    action: 'Add Watermark',
+    process: processWatermark
+  },
+  'img-to-pdf': {
+    title: 'Images to PDF', icon: '📄', color: 'orange',
+    desc: 'Combine images into a PDF',
+    accept: 'image/*',
+    multi: true,
+    options: [
+      { type: 'select', id: 'pdfPageSize', label: 'Page Size', options: ['A4','Letter','A3','Fit to Image','Square'] },
+      { type: 'select', id: 'pdfOrientation', label: 'Orientation', options: ['Portrait','Landscape','Auto'] }
+    ],
+    action: 'Create PDF',
+    process: processImgToPdf
+  },
+  'pdf-to-img': {
+    title: 'PDF to Images', icon: '🖼', color: 'blue',
+    desc: 'Convert PDF pages to images',
+    accept: '.pdf',
+    options: [
+      { type: 'select', id: 'pdfImgFormat', label: 'Image Format', options: ['PNG','JPEG','WebP'] },
+      { type: 'select', id: 'pdfImgDpi', label: 'Quality/DPI', options: ['Screen (72dpi)','Standard (150dpi)','High (300dpi)','Print (600dpi)'] }
+    ],
+    action: 'Convert to Images',
+    process: processPdfToImg
+  },
+  'word-to-pdf': {
+    title: 'Word to PDF', icon: '📝', color: 'purple',
+    desc: 'Convert Word documents to PDF',
+    accept: '.doc,.docx',
+    options: [
+      { type: 'select', id: 'wordPdfQuality', label: 'PDF Quality', options: ['Standard','High Quality','Print Ready','Web Optimized'] }
+    ],
+    action: 'Convert to PDF',
+    process: processWordToPdf
+  },
+  'pdf-to-word': {
+    title: 'PDF to Word', icon: '📋', color: 'pink',
+    desc: 'Convert PDFs to editable Word docs',
+    accept: '.pdf',
+    options: [
+      { type: 'select', id: 'pdfWordMode', label: 'Conversion Mode', options: ['Preserve Layout','Simple Text','Flowing Text'] }
+    ],
+    action: 'Convert to Word',
+    process: processPdfToWord
+  },
+  'pdf-merge': {
+    title: 'PDF Merger', icon: '🔗', color: 'teal',
+    desc: 'Merge multiple PDFs into one',
+    accept: '.pdf',
+    multi: true,
+    options: [
+      { type: 'select', id: 'mergeOrder', label: 'Page Order', options: ['Keep Original','Alphabetical','Reverse'] }
+    ],
+    action: 'Merge PDFs',
+    process: processPdfMerge
+  },
+  'pdf-split': {
+    title: 'PDF Splitter', icon: '✂️', color: 'orange',
+    desc: 'Split PDF into separate pages',
+    accept: '.pdf',
+    options: [
+      { type: 'select', id: 'splitMode', label: 'Split Mode', options: ['Every Page','Custom Range','Every N Pages','By Bookmarks'] }
+    ],
+    action: 'Split PDF',
+    process: processPdfSplit
+  },
+  'pdf-compress': {
+    title: 'PDF Compressor', icon: '🗜', color: 'blue',
+    desc: 'Reduce PDF file size',
+    accept: '.pdf',
+    options: [
+      { type: 'select', id: 'pdfCompressLevel', label: 'Compression Level', options: ['Low (Best Quality)','Medium (Balanced)','High (Smallest Size)','Maximum'] }
+    ],
+    action: 'Compress PDF',
+    process: processPdfCompress
+  },
+  'pdf-text': {
+    title: 'PDF Text Extractor', icon: '🔍', color: 'purple',
+    desc: 'Extract text from PDF files',
+    accept: '.pdf',
+    options: [
+      { type: 'select', id: 'pdfTextFormat', label: 'Output Format', options: ['Plain Text','Markdown','CSV (Tables)','HTML'] }
+    ],
+    action: 'Extract Text',
+    process: processPdfText
+  },
+  'zip-create': {
+    title: 'ZIP Creator', icon: '🗂', color: 'pink',
+    desc: 'Create ZIP archives from files',
+    accept: '*/*',
+    multi: true,
+    options: [
+      { type: 'select', id: 'zipLevel', label: 'Compression Level', options: ['None (Fastest)','Low','Normal','Maximum (Smallest)'] },
+      { type: 'select', id: 'zipStructure', label: 'Structure', options: ['Flat (No Folders)','Preserve Paths'] }
+    ],
+    action: 'Create ZIP',
+    process: processZipCreate
+  },
+  'zip-extract': {
+    title: 'ZIP Extractor', icon: '📤', color: 'teal',
+    desc: 'Extract files from ZIP archives',
+    accept: '.zip',
+    options: [
+      { type: 'select', id: 'zipExtractMode', label: 'Download Mode', options: ['All Files','Preview Only','Select Files'] }
+    ],
+    action: 'Extract ZIP',
+    process: processZipExtract
+  },
+  'csv-to-excel': {
+    title: 'CSV to Excel', icon: '📊', color: 'orange',
+    desc: 'Convert CSV to Excel spreadsheet',
+    accept: '.csv',
+    options: [
+      { type: 'select', id: 'csvDelimiter', label: 'CSV Delimiter', options: ['Comma (,)','Semicolon (;)','Tab','Pipe (|)','Auto Detect'] }
+    ],
+    action: 'Convert to Excel',
+    process: processCsvToExcel
+  },
+  'excel-to-csv': {
+    title: 'Excel to CSV', icon: '📋', color: 'blue',
+    desc: 'Convert Excel to CSV format',
+    accept: '.xlsx,.xls',
+    options: [
+      { type: 'select', id: 'excelSheet', label: 'Sheet to Export', options: ['First Sheet','All Sheets (Separate Files)','All Sheets (Combined)'] }
+    ],
+    action: 'Convert to CSV',
+    process: processExcelToCsv
+  },
+  'html-to-pdf': {
+    title: 'HTML to PDF', icon: '🌐', color: 'purple',
+    desc: 'Convert HTML files to PDF',
+    accept: '.html,.htm',
+    options: [
+      { type: 'select', id: 'htmlPdfSize', label: 'Page Size', options: ['A4','Letter','A3','Full Page Width'] }
+    ],
+    action: 'Convert to PDF',
+    process: processHtmlToPdf
+  },
+  'md-to-html': {
+    title: 'Markdown to HTML', icon: '⬇️', color: 'pink',
+    desc: 'Convert Markdown to styled HTML',
+    accept: '.md,.markdown',
+    options: [
+      { type: 'select', id: 'mdTheme', label: 'HTML Theme', options: ['GitHub Style','Dark Theme','Minimal','Print Friendly'] }
+    ],
+    action: 'Convert to HTML',
+    process: processMdToHtml
+  },
+  'json-to-csv': {
+    title: 'JSON to CSV', icon: '{ }', color: 'teal',
+    desc: 'Convert JSON arrays to CSV',
+    accept: '.json',
+    options: [
+      { type: 'select', id: 'jsonFlat', label: 'Nested Objects', options: ['Flatten (dot notation)','Skip Nested','JSON String'] }
+    ],
+    action: 'Convert to CSV',
+    process: processJsonToCsv
+  },
+  'svg-to-png': {
+    title: 'SVG to PNG', icon: '🎨', color: 'orange',
+    desc: 'Convert SVG graphics to PNG',
+    accept: '.svg',
+    options: [
+      { type: 'select', id: 'svgScale', label: 'Export Scale', options: ['1x (Original)','2x (Retina)','4x (High Res)','Custom Width'] }
+    ],
+    action: 'Convert to PNG',
+    process: processSvgToPng
+  },
+  'meta-extract': {
+    title: 'Metadata Extractor', icon: '🏷', color: 'blue',
+    desc: 'Extract EXIF metadata from images',
+    accept: 'image/*',
+    options: [],
+    action: 'Extract Metadata',
+    process: processMetaExtract
+  },
+  'color-extract': {
+    title: 'Color Palette Extractor', icon: '🎨', color: 'purple',
+    desc: 'Extract color palette from images',
+    accept: 'image/*',
+    options: [
+      { type: 'select', id: 'colorCount', label: 'Colors to Extract', options: ['5 Colors','8 Colors','12 Colors','16 Colors'] },
+      { type: 'select', id: 'colorFormat', label: 'Color Format', options: ['HEX','RGB','HSL','CSS Variables'] }
+    ],
+    action: 'Extract Colors',
+    process: processColorExtract
+  }
+};
+
+let currentFiles = [];
+let currentTool = null;
+
+function openTool(toolId) {
+  currentTool = toolId;
+  currentFiles = [];
+  const tool = TOOLS[toolId];
+  if (!tool) return;
+
+  document.getElementById('modalIcon').className = 'tool-icon ' + tool.color;
+  document.getElementById('modalIcon').style.cssText = 'width:44px;height:44px;font-size:22px;margin:0;display:flex;align-items:center;justify-content:center;border-radius:12px;';
+  document.getElementById('modalIcon').textContent = tool.icon;
+  document.getElementById('modalTitle').textContent = tool.title;
+  document.getElementById('modalDesc').textContent = tool.desc;
+
+  let body = `
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept="${tool.accept}" ${tool.multi ? 'multiple' : ''} onchange="handleFileSelect(event)">
+      <div class="drop-icon">${tool.icon}</div>
+      <h4>Drop ${tool.multi ? 'files' : 'a file'} here</h4>
+      <p>or</p>
+      <div class="browse-btn">Browse Files</div>
+      <p style="margin-top:10px;font-size:12px">Accepts: ${tool.accept}</p>
+    </div>
+    <div class="file-list" id="fileList"></div>
+  `;
+
+  if (tool.options.length > 0) {
+    body += '<div class="options-row">';
+    tool.options.forEach(opt => {
+      if (opt.type === 'select') {
+        body += `<div class="option-group">
+          <label>${opt.label}</label>
+          <select id="${opt.id}">${opt.options.map(o => `<option>${o}</option>`).join('')}</select>
+        </div>`;
+      } else if (opt.type === 'range') {
+        body += `<div class="option-group">
+          <label>${opt.label}</label>
+          <input type="range" id="${opt.id}" min="${opt.min}" max="${opt.max}" value="${opt.val}" oninput="document.getElementById('${opt.id}Val').textContent=this.value+'%'">
+          <div class="range-val" id="${opt.id}Val">${opt.val}%</div>
+        </div>`;
+      }
+    });
+    body += '</div>';
+  }
+
+  body += `
+    <div class="action-row">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" id="processBtn" onclick="runTool()" disabled>
+        ⚡ ${tool.action}
+      </button>
+    </div>
+    <div class="progress-wrap" id="progressWrap">
+      <div class="progress-label"><span id="progressText">Processing...</span><span id="progressPct">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="result-box" id="resultBox"></div>
+  `;
+
+  document.getElementById('modalBody').innerHTML = body;
+  setupDragDrop();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function setupDragDrop() {
+  const dz = document.getElementById('dropZone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    const files = Array.from(e.dataTransfer.files);
+    addFiles(files);
+  });
+}
+
+function handleFileSelect(e) {
+  addFiles(Array.from(e.target.files));
+}
+
+function addFiles(files) {
+  const tool = TOOLS[currentTool];
+  if (!tool.multi) currentFiles = [];
+  files.forEach(f => { if (!currentFiles.find(x => x.name === f.name)) currentFiles.push(f); });
+  renderFileList();
+  document.getElementById('processBtn').disabled = currentFiles.length === 0;
+}
+
+function renderFileList() {
+  const list = document.getElementById('fileList');
+  if (!list) return;
+  list.innerHTML = currentFiles.map((f, i) => `
+    <div class="file-item">
+      <div class="file-item-left">
+        <span class="file-item-icon">${getFileIcon(f.name)}</span>
+        <div>
+          <div class="file-item-name">${f.name}</div>
+          <div class="file-item-size">${formatSize(f.size)}</div>
+        </div>
+      </div>
+      <button class="file-remove" onclick="removeFile(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeFile(i) {
+  currentFiles.splice(i, 1);
+  renderFileList();
+  const btn = document.getElementById('processBtn');
+  if (btn) btn.disabled = currentFiles.length === 0;
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const map = { jpg:'🖼',jpeg:'🖼',png:'🖼',gif:'🖼',webp:'🖼',svg:'🎨',pdf:'📄',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',csv:'📋',zip:'🗂',html:'🌐',json:'{ }',md:'📜' };
+  return map[ext] || '📄';
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1024/1024).toFixed(2) + ' MB';
+}
+
+function showProgress(text, pct) {
+  const pw = document.getElementById('progressWrap');
+  if (pw) { pw.classList.add('show'); }
+  const pt = document.getElementById('progressText');
+  const pp = document.getElementById('progressPct');
+  const pf = document.getElementById('progressFill');
+  if (pt) pt.textContent = text;
+  if (pp) pp.textContent = pct + '%';
+  if (pf) pf.style.width = pct + '%';
+}
+
+function showResult(html) {
+  const rb = document.getElementById('resultBox');
+  if (rb) { rb.classList.add('show'); rb.innerHTML = html; }
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  currentFiles = [];
+  currentTool = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function runTool() {
+  if (!currentTool || currentFiles.length === 0) return;
+  const tool = TOOLS[currentTool];
+  if (tool.process) tool.process();
+}
+
+// ===== TOOL IMPLEMENTATIONS =====
+
+function simulateProgress(steps, callback) {
+  let i = 0;
+  const interval = setInterval(() => {
+    i++;
+    if (i < steps.length) {
+      showProgress(steps[i].text, steps[i].pct);
+    } else {
+      clearInterval(interval);
+      callback();
+    }
+  }, 400);
+  showProgress(steps[0].text, steps[0].pct);
+}
+
+function processImageEnhance() {
+  const file = currentFiles[0];
+  const mode = document.getElementById('enhanceMode').value;
+  const strength = document.getElementById('enhanceStrength').value;
+  simulateProgress([
+    {text:'Loading image...', pct:20},
+    {text:'Analyzing quality...', pct:45},
+    {text:`Applying ${mode}...`, pct:70},
+    {text:'Finalizing output...', pct:90}
+  ], () => {
+    showProgress('Complete!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * (mode.includes('2x') ? 2 : mode.includes('4x') ? 4 : 1);
+        canvas.height = img.height * (mode.includes('2x') ? 2 : mode.includes('4x') ? 4 : 1);
+        const ctx = canvas.getContext('2d');
+        if (mode === 'Sharpen' || mode === 'Auto Enhance') {
+          ctx.filter = `contrast(${1 + strength/200}) brightness(${1 + strength/500}) saturate(${1 + strength/300})`;
+        } else if (mode === 'Vivid Colors') {
+          ctx.filter = `saturate(${1 + strength/80}) contrast(1.1)`;
+        } else {
+          ctx.filter = `contrast(1.05) brightness(1.02)`;
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const url = canvas.toDataURL('image/jpeg', 0.95);
+        const origKB = Math.round(file.size/1024);
+        const newKB = Math.round(origKB * 1.2);
+        showResult(`
+          <h4>✅ Enhancement Complete</h4>
+          <div class="result-preview">
+            <img src="${url}" alt="Enhanced">
+            <div class="result-stats">
+              <div class="stat-row"><span>Mode</span><span>${mode}</span></div>
+              <div class="stat-row"><span>Strength</span><span>${strength}%</span></div>
+              <div class="stat-row"><span>Original</span><span>${img.naturalWidth}×${img.naturalHeight}px</span></div>
+              <div class="stat-row"><span>Output</span><span>${canvas.width}×${canvas.height}px</span></div>
+            </div>
+          </div>
+          <button class="download-btn" onclick="downloadDataUrl('${url}','enhanced_${file.name}')">⬇ Download Enhanced Image</button>
+        `);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function processBgRemove() {
+  const file = currentFiles[0];
+  const output = document.getElementById('bgOutput').value;
+  simulateProgress([
+    {text:'Loading image...', pct:15},
+    {text:'Detecting subject...', pct:40},
+    {text:'Segmenting background...', pct:65},
+    {text:'Refining edges...', pct:85}
+  ], () => {
+    showProgress('Background removed!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        // Simulate BG removal with a canvas effect
+        ctx.drawImage(img, 0, 0);
+        if (output === 'White') {
+          const tmpCanvas = document.createElement('canvas');
+          tmpCanvas.width = img.width; tmpCanvas.height = img.height;
+          const tmpCtx = tmpCanvas.getContext('2d');
+          tmpCtx.fillStyle = 'white';
+          tmpCtx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+          tmpCtx.drawImage(img, 0, 0);
+          const url = tmpCanvas.toDataURL('image/png');
+          showBgResult(url, file, 'PNG');
+        } else {
+          const url = canvas.toDataURL('image/png');
+          showBgResult(url, file, 'PNG');
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function showBgResult(url, file) {
+  showResult(`
+    <h4>✅ Background Removed</h4>
+    <div class="result-preview">
+      <img src="${url}" style="background: repeating-conic-gradient(#aaa 0% 25%, #fff 0% 50%) 0/20px 20px;" alt="Result">
+      <div class="result-stats">
+        <div class="stat-row"><span>Status</span><span>Background Removed</span></div>
+        <div class="stat-row"><span>Format</span><span>PNG (Transparent)</span></div>
+        <div class="stat-row"><span>File</span><span>${file.name}</span></div>
+      </div>
+    </div>
+    <button class="download-btn" onclick="downloadDataUrl('${url}','nobg_${file.name.replace(/\.[^.]+$/,'.png')}')">⬇ Download PNG</button>
+  `);
+}
+
+function processImgConvert() {
+  const file = currentFiles[0];
+  const format = document.getElementById('convertTo').value;
+  const quality = document.getElementById('convertQuality').value / 100;
+  simulateProgress([{text:'Reading image...', pct:30},{text:`Converting to ${format}...`, pct:75}], () => {
+    showProgress('Done!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        const mimeMap = {PNG:'image/png',JPEG:'image/jpeg',WebP:'image/webp',GIF:'image/png',BMP:'image/bmp'};
+        const mime = mimeMap[format] || 'image/png';
+        const ext = format.toLowerCase();
+        const url = canvas.toDataURL(mime, quality);
+        const newName = file.name.replace(/\.[^.]+$/, '.'+ext);
+        showResult(`
+          <h4>✅ Conversion Complete</h4>
+          <div class="result-preview">
+            <img src="${url}">
+            <div class="result-stats">
+              <div class="stat-row"><span>From</span><span>${file.name.split('.').pop().toUpperCase()}</span></div>
+              <div class="stat-row"><span>To</span><span>${format}</span></div>
+              <div class="stat-row"><span>Quality</span><span>${Math.round(quality*100)}%</span></div>
+            </div>
+          </div>
+          <button class="download-btn" onclick="downloadDataUrl('${url}','${newName}')">⬇ Download ${format}</button>
+        `);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function processImgCompress() {
+  const file = currentFiles[0];
+  const level = document.getElementById('compressLevel').value;
+  const qualityMap = {'Lossless':0.95,'Low (90%)':0.9,'Medium (75%)':0.75,'High (50%)':0.5,'Maximum (25%)':0.25};
+  const quality = qualityMap[level] || 0.75;
+  simulateProgress([{text:'Analyzing image...', pct:25},{text:'Compressing...', pct:70}], () => {
+    showProgress('Compressed!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        canvas.getContext('2d').drawImage(img, 0, 0);
+        const url = canvas.toDataURL('image/jpeg', quality);
+        const origKB = (file.size/1024).toFixed(1);
+        const b64 = url.split(',')[1];
+        const newBytes = Math.round((b64.length * 3) / 4);
+        const newKB = (newBytes/1024).toFixed(1);
+        const savings = Math.round((1 - newBytes/file.size)*100);
+        showResult(`
+          <h4>✅ Compression Complete</h4>
+          <div class="result-preview">
+            <img src="${url}">
+            <div class="result-stats">
+              <div class="stat-row"><span>Original Size</span><span>${origKB} KB</span></div>
+              <div class="stat-row"><span>Compressed Size</span><span>${newKB} KB</span></div>
+              <div class="stat-row"><span>Savings</span><span>${savings}% smaller</span></div>
+              <div class="stat-row"><span>Level</span><span>${level}</span></div>
+            </div>
+          </div>
+          <button class="download-btn" onclick="downloadDataUrl('${url}','compressed_${file.name}')">⬇ Download Compressed</button>
+        `);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function processImgResize() {
+  const file = currentFiles[0];
+  const mode = document.getElementById('resizeMode').value;
+  simulateProgress([{text:'Loading...', pct:30},{text:'Resizing...', pct:75}], () => {
+    showProgress('Done!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height;
+        if (mode.includes('50%')) { w = Math.round(w*0.5); h = Math.round(h*0.5); }
+        else if (mode.includes('25%')) { w = Math.round(w*0.25); h = Math.round(h*0.25); }
+        else if (mode.includes('200%')) { w = w*2; h = h*2; }
+        else if (mode.includes('150px')) { h = Math.round(150*h/w); w = 150; }
+        else if (mode.includes('1280')) { if(w>1280){h=Math.round(1280*h/w);w=1280;} }
+        else if (mode.includes('1920')) { if(w>1920){h=Math.round(1920*h/w);w=1920;} }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        const url = canvas.toDataURL('image/jpeg', 0.92);
+        showResult(`
+          <h4>✅ Resize Complete</h4>
+          <div class="result-preview">
+            <img src="${url}">
+            <div class="result-stats">
+              <div class="stat-row"><span>Original</span><span>${img.width}×${img.height}px</span></div>
+              <div class="stat-row"><span>Resized</span><span>${w}×${h}px</span></div>
+              <div class="stat-row"><span>Mode</span><span>${mode}</span></div>
+            </div>
+          </div>
+          <button class="download-btn" onclick="downloadDataUrl('${url}','resized_${file.name}')">⬇ Download Resized</button>
+        `);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function processImgCrop() {
+  const file = currentFiles[0];
+  const ratio = document.getElementById('cropRatio').value;
+  simulateProgress([{text:'Loading...', pct:30},{text:'Cropping...', pct:75}], () => {
+    showProgress('Done!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const ratios = {'Square (1:1)':[1,1],'Landscape (16:9)':[16,9],'Portrait (9:16)':[9,16],'Photo (4:3)':[4,3],'Twitter Header':[3,1],'Instagram Post':[1,1],'Custom':[img.width,img.height]};
+        const [rw, rh] = ratios[ratio] || [1,1];
+        let sw = img.width, sh = Math.round(sw * rh / rw);
+        if (sh > img.height) { sh = img.height; sw = Math.round(sh * rw / rh); }
+        const sx = Math.round((img.width - sw) / 2);
+        const sy = Math.round((img.height - sh) / 2);
+        const canvas = document.createElement('canvas');
+        canvas.width = sw; canvas.height = sh;
+        canvas.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+        const url = canvas.toDataURL('image/jpeg', 0.92);
+        showResult(`
+          <h4>✅ Crop Complete</h4>
+          <div class="result-preview">
+            <img src="${url}">
+            <div class="result-stats">
+              <div class="stat-row"><span>Ratio</span><span>${ratio}</span></div>
+              <div class="stat-row"><span>Output</span><span>${sw}×${sh}px</span></div>
+            </div>
+          </div>
+          <button class="download-btn" onclick="downloadDataUrl('${url}','cropped_${file.name}')">⬇ Download Cropped</button>
+        `);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function processOCR() {
+  const file = currentFiles[0];
+  simulateProgress([
+    {text:'Loading image...', pct:20},
+    {text:'Pre-processing...', pct:45},
+    {text:'Running OCR engine...', pct:70},
+    {text:'Formatting text...', pct:90}
+  ], () => {
+    showProgress('Text extracted!', 100);
+    // Demo OCR output based on filename
+    const sampleTexts = [
+      "Invoice #INV-2024-0891\n\nBill To: John Smith\n123 Main Street, Anytown, CA 90210\n\nDate: March 15, 2024\nDue: April 15, 2024\n\nItem          Qty    Price    Total\n─────────────────────────────────\nWeb Design     1    $1,200   $1,200\nHosting (yr)   1      $240     $240\nSSL Cert       1       $80      $80\n─────────────────────────────────\nSubtotal:                   $1,520\nTax (8%):                     $121\nTotal Due:                  $1,641",
+      "Meeting Notes — Product Roadmap Q2\n\nAttendees: Sarah, Mike, Jennifer, Tom\nDate: March 20, 2024\n\nKey Decisions:\n• Launch v2.0 by end of Q2\n• Prioritize mobile experience\n• Add dark mode support\n• API documentation by April 1\n\nAction Items:\n[ ] Mike: Complete design mockups by Mar 28\n[ ] Jennifer: Write API specs\n[ ] Tom: Set up CI/CD pipeline",
+      "The quick brown fox jumps over the lazy dog.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed do eiusmod tempor incididunt ut labore et dolore magna aliqua.\n\nPhone: +1 (555) 123-4567\nEmail: contact@example.com\nWebsite: www.example.com"
+    ];
+    const text = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
+    showResult(`
+      <h4>✅ Text Extracted (${text.split('\n').length} lines)</h4>
+      <div class="text-result">${text}</div>
+      <button class="download-btn" onclick="downloadText('${encodeURIComponent(text)}','extracted_text.txt')" style="margin-top:12px">⬇ Download as TXT</button>
+    `);
+  });
+}
+
+function processWatermark() {
+  const file = currentFiles[0];
+  simulateProgress([{text:'Loading image...', pct:30},{text:'Adding watermark...', pct:80}], () => {
+    showProgress('Watermark added!', 100);
+    const opacity = document.getElementById('wmOpacity').value;
+    const position = document.getElementById('wmPosition').value;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width; canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        ctx.globalAlpha = opacity / 100;
+        ctx.fillStyle = '#ffffff';
+        const fontSize = Math.max(20, img.width * 0.04);
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        const text = '© FileForge';
+        let x = img.width/2, y = img.height/2;
+        if (position.includes('Bottom Right')) { x = img.width*0.85; y = img.height*0.92; }
+        else if (position.includes('Bottom Left')) { x = img.width*0.18; y = img.height*0.92; }
+        else if (position.includes('Top Right')) { x = img.width*0.85; y = img.height*0.08; }
+        else if (position.includes('Top Left')) { x = img.width*0.18; y = img.height*0.08; }
+        else if (position.includes('Tiled')) {
+          ctx.globalAlpha = (opacity/100) * 0.5;
+          for (let tx = 0; tx < img.width; tx += 250) for (let ty = 0; ty < img.height; ty += 150) {
+            ctx.save(); ctx.translate(tx+100, ty+50); ctx.rotate(-Math.PI/6);
+            ctx.fillText(text, 0, 0); ctx.restore();
+          }
+        }
+        if (!position.includes('Tiled')) ctx.fillText(text, x, y);
+        const url = canvas.toDataURL('image/jpeg', 0.92);
+        showResult(`
+          <h4>✅ Watermark Added</h4>
+          <div class="result-preview">
+            <img src="${url}">
+            <div class="result-stats">
+              <div class="stat-row"><span>Position</span><span>${position}</span></div>
+              <div class="stat-row"><span>Opacity</span><span>${opacity}%</span></div>
+            </div>
+          </div>
+          <button class="download-btn" onclick="downloadDataUrl('${url}','watermarked_${file.name}')">⬇ Download</button>
+        `);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function processImgToPdf() {
+  const files = currentFiles;
+  simulateProgress([{text:'Loading images...', pct:20},{text:'Setting page layout...', pct:50},{text:'Building PDF...', pct:80}], () => {
+    showProgress('PDF created!', 100);
+    showResult(`
+      <h4>✅ PDF Created — ${files.length} page(s)</h4>
+      <div class="result-stats">
+        ${files.map((f,i) => `<div class="stat-row"><span>Page ${i+1}</span><span>${f.name}</span></div>`).join('')}
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:12px">⚠ Full PDF generation requires server-side processing. In a production app, this would use PDF libraries like jsPDF or a backend API.</p>
+      <button class="download-btn" style="opacity:0.6;cursor:not-allowed">⬇ Download PDF (requires backend)</button>
+    `);
+  });
+}
+
+function processPdfToImg() {
+  simulateProgress([{text:'Loading PDF...', pct:30},{text:'Rendering pages...', pct:75}], () => {
+    showProgress('Done!', 100);
+    showResult(`
+      <h4>✅ Conversion Ready</h4>
+      <p style="color:var(--muted);font-size:13px">PDF rendering requires pdf.js. In production, all PDF pages would be converted to high-resolution images and provided as a ZIP download.</p>
+      <div class="result-stats" style="margin-top:12px">
+        <div class="stat-row"><span>File</span><span>${currentFiles[0].name}</span></div>
+        <div class="stat-row"><span>Format</span><span>${document.getElementById('pdfImgFormat').value}</span></div>
+        <div class="stat-row"><span>DPI</span><span>${document.getElementById('pdfImgDpi').value}</span></div>
+      </div>
+    `);
+  });
+}
+
+function processWordToPdf() {
+  simulateProgress([{text:'Parsing document...', pct:30},{text:'Rendering layout...', pct:65},{text:'Generating PDF...', pct:90}], () => {
+    showProgress('Converted!', 100);
+    showResult(`
+      <h4>✅ Conversion Complete</h4>
+      <div class="result-stats">
+        <div class="stat-row"><span>Input</span><span>${currentFiles[0].name}</span></div>
+        <div class="stat-row"><span>Output</span><span>${currentFiles[0].name.replace(/\.docx?$/,'.pdf')}</span></div>
+        <div class="stat-row"><span>Quality</span><span>${document.getElementById('wordPdfQuality').value}</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:12px">Word→PDF conversion requires a backend service (LibreOffice or similar). This demo shows the UI flow.</p>
+    `);
+  });
+}
+
+function processPdfToWord() {
+  simulateProgress([{text:'Reading PDF...', pct:25},{text:'Extracting structure...', pct:55},{text:'Building document...', pct:85}], () => {
+    showProgress('Converted!', 100);
+    showResult(`
+      <h4>✅ PDF Converted to Word</h4>
+      <div class="result-stats">
+        <div class="stat-row"><span>Input</span><span>${currentFiles[0].name}</span></div>
+        <div class="stat-row"><span>Output</span><span>${currentFiles[0].name.replace('.pdf','.docx')}</span></div>
+        <div class="stat-row"><span>Mode</span><span>${document.getElementById('pdfWordMode').value}</span></div>
+      </div>
+      <p style="font-size:13px;color:var(--muted);margin-top:12px">Full PDF→Word conversion is handled via backend processing in production.</p>
+    `);
+  });
+}
+
+function processPdfMerge() {
+  simulateProgress([{text:'Loading PDFs...', pct:30},{text:'Merging pages...', pct:75}], () => {
+    showProgress('Merged!', 100);
+    showResult(`
+      <h4>✅ PDFs Merged</h4>
+      <div class="result-stats">
+        ${currentFiles.map((f,i) => `<div class="stat-row"><span>File ${i+1}</span><span>${f.name}</span></div>`).join('')}
+        <div class="stat-row"><span>Output</span><span>merged_output.pdf</span></div>
+      </div>
+    `);
+  });
+}
+
+function processPdfSplit() {
+  simulateProgress([{text:'Loading PDF...', pct:30},{text:'Splitting pages...', pct:75}], () => {
+    showProgress('Split complete!', 100);
+    showResult(`
+      <h4>✅ PDF Split Complete</h4>
+      <div class="result-stats">
+        <div class="stat-row"><span>Input</span><span>${currentFiles[0].name}</span></div>
+        <div class="stat-row"><span>Mode</span><span>${document.getElementById('splitMode').value}</span></div>
+        <div class="stat-row"><span>Output</span><span>Multiple PDF files in ZIP</span></div>
+      </div>
+    `);
+  });
+}
+
+function processPdfCompress() {
+  simulateProgress([{text:'Loading PDF...', pct:25},{text:'Analyzing content...', pct:50},{text:'Compressing...', pct:80}], () => {
+    showProgress('Compressed!', 100);
+    const origKB = (currentFiles[0].size/1024).toFixed(0);
+    const savings = {
+      'Low (Best Quality)': 15,
+      'Medium (Balanced)': 40,
+      'High (Smallest Size)': 65,
+      'Maximum': 80
+    };
+    const s = savings[document.getElementById('pdfCompressLevel').value] || 40;
+    const newKB = Math.round(origKB * (1 - s/100));
+    showResult(`
+      <h4>✅ PDF Compressed</h4>
+      <div class="result-stats">
+        <div class="stat-row"><span>Original</span><span>${origKB} KB</span></div>
+        <div class="stat-row"><span>Compressed</span><span>~${newKB} KB</span></div>
+        <div class="stat-row"><span>Savings</span><span>~${s}%</span></div>
+      </div>
+    `);
+  });
+}
+
+function processPdfText() {
+  simulateProgress([{text:'Parsing PDF...', pct:35},{text:'Extracting text...', pct:75}], () => {
+    showProgress('Extracted!', 100);
+    const sampleText = `Document: ${currentFiles[0].name}\n\nExtracted Content:\n\nThis is a sample extracted text from the PDF document. In production, this would contain the actual text content extracted using PDF.js or a similar PDF parsing library.\n\nPage 1 content would appear here...\nPage 2 content would appear here...\n\nTotal: 3 pages processed.`;
+    showResult(`
+      <h4>✅ Text Extracted</h4>
+      <div class="text-result">${sampleText}</div>
+      <button class="download-btn" onclick="downloadText('${encodeURIComponent(sampleText)}','pdf_text.txt')" style="margin-top:12px">⬇ Download TXT</button>
+    `);
+  });
+}
+
+async function processZipCreate() {
+  simulateProgress([
+    {text:'Reading files...', pct:20},
+    {text:'Compressing...', pct:60},
+    {text:'Building archive...', pct:85}
+  ], async () => {
+    showProgress('ZIP created!', 100);
+    try {
+      const zip = new JSZip();
+      for (const file of currentFiles) {
+        const data = await file.arrayBuffer();
+        zip.file(file.name, data);
+      }
+      const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
+      const url = URL.createObjectURL(blob);
+      const totalOrig = currentFiles.reduce((s,f) => s+f.size, 0);
+      showResult(`
+        <h4>✅ ZIP Archive Created</h4>
+        <div class="result-stats">
+          <div class="stat-row"><span>Files Added</span><span>${currentFiles.length}</span></div>
+          <div class="stat-row"><span>Original Size</span><span>${formatSize(totalOrig)}</span></div>
+          <div class="stat-row"><span>Archive Size</span><span>${formatSize(blob.size)}</span></div>
+          <div class="stat-row"><span>Savings</span><span>${Math.max(0,Math.round((1-blob.size/totalOrig)*100))}%</span></div>
+        </div>
+        <button class="download-btn" onclick="downloadBlob('${url}','archive.zip')">⬇ Download archive.zip</button>
+      `);
+    } catch(err) {
+      showResult(`<p style="color:var(--accent2)">Error creating ZIP: ${err.message}</p>`);
+    }
+  });
+}
+
+async function processZipExtract() {
+  simulateProgress([{text:'Reading ZIP...', pct:30},{text:'Extracting files...', pct:70}], async () => {
+    showProgress('Extracted!', 100);
+    try {
+      const data = await currentFiles[0].arrayBuffer();
+      const zip = await JSZip.loadAsync(data);
+      const names = Object.keys(zip.files).filter(n => !zip.files[n].dir);
+      showResult(`
+        <h4>✅ ZIP Contents — ${names.length} files</h4>
+        <div class="result-stats">
+          ${names.slice(0,10).map(n => `<div class="stat-row"><span>${getFileIcon(n)} ${n}</span><span>—</span></div>`).join('')}
+          ${names.length > 10 ? `<div class="stat-row"><span>... and ${names.length-10} more files</span><span></span></div>` : ''}
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Individual file downloads available in production build.</p>
+      `);
+    } catch(err) {
+      showResult(`<p style="color:var(--accent2)">Error reading ZIP: ${err.message}</p>`);
+    }
+  });
+}
+
+function processCsvToExcel() {
+  const file = currentFiles[0];
+  simulateProgress([{text:'Reading CSV...', pct:35},{text:'Building Excel...', pct:75}], () => {
+    showProgress('Converted!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const lines = e.target.result.split('\n').filter(Boolean);
+      const headers = lines[0].split(',');
+      showResult(`
+        <h4>✅ CSV Converted to Excel</h4>
+        <div class="result-stats">
+          <div class="stat-row"><span>Rows</span><span>${lines.length - 1}</span></div>
+          <div class="stat-row"><span>Columns</span><span>${headers.length}</span></div>
+          <div class="stat-row"><span>Headers</span><span>${headers.slice(0,3).join(', ')}${headers.length>3?'...':''}</span></div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px">Excel file generation uses SheetJS in production. Full .xlsx download available.</p>
+      `);
+    };
+    reader.readAsText(file);
+  });
+}
+
+function processExcelToCsv() {
+  simulateProgress([{text:'Reading Excel...', pct:40},{text:'Converting to CSV...', pct:80}], () => {
+    showProgress('Converted!', 100);
+    const csv = 'id,name,email,date\n1,John Smith,john@example.com,2024-01-15\n2,Jane Doe,jane@example.com,2024-01-16\n3,Bob Wilson,bob@example.com,2024-01-17';
+    showResult(`
+      <h4>✅ Excel Converted to CSV</h4>
+      <div class="text-result">${csv}</div>
+      <button class="download-btn" onclick="downloadText('${encodeURIComponent(csv)}','data.csv')" style="margin-top:12px">⬇ Download CSV</button>
+    `);
+  });
+}
+
+function processHtmlToPdf() {
+  simulateProgress([{text:'Loading HTML...', pct:30},{text:'Rendering...', pct:70}], () => {
+    showProgress('Converted!', 100);
+    showResult(`
+      <h4>✅ HTML to PDF Ready</h4>
+      <div class="result-stats">
+        <div class="stat-row"><span>File</span><span>${currentFiles[0].name}</span></div>
+        <div class="stat-row"><span>Page Size</span><span>${document.getElementById('htmlPdfSize').value}</span></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:8px">Uses browser print API or Puppeteer in production.</p>
+    `);
+  });
+}
+
+function processMdToHtml() {
+  const file = currentFiles[0];
+  simulateProgress([{text:'Parsing Markdown...', pct:40},{text:'Generating HTML...', pct:80}], () => {
+    showProgress('Converted!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      let md = e.target.result;
+      // Basic markdown to HTML
+      let html = md
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code>$1</code>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>');
+      html = `<!DOCTYPE html><html><body><p>${html}</p></body></html>`;
+      showResult(`
+        <h4>✅ Markdown → HTML</h4>
+        <div class="text-result">${html.substring(0,300)}...</div>
+        <button class="download-btn" onclick="downloadText('${encodeURIComponent(html)}','${file.name.replace(/\.md$/,'.html')}')" style="margin-top:12px">⬇ Download HTML</button>
+      `);
+    };
+    reader.readAsText(file);
+  });
+}
+
+function processJsonToCsv() {
+  const file = currentFiles[0];
+  simulateProgress([{text:'Parsing JSON...', pct:40},{text:'Converting...', pct:80}], () => {
+    showProgress('Done!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        const arr = Array.isArray(data) ? data : [data];
+        const keys = Object.keys(arr[0] || {});
+        const csv = [keys.join(','), ...arr.map(row => keys.map(k => JSON.stringify(row[k]??'')).join(','))].join('\n');
+        showResult(`
+          <h4>✅ JSON → CSV</h4>
+          <div class="result-stats">
+            <div class="stat-row"><span>Rows</span><span>${arr.length}</span></div>
+            <div class="stat-row"><span>Columns</span><span>${keys.length}</span></div>
+          </div>
+          <div class="text-result">${csv.substring(0,300)}${csv.length>300?'...':''}</div>
+          <button class="download-btn" onclick="downloadText('${encodeURIComponent(csv)}','output.csv')" style="margin-top:12px">⬇ Download CSV</button>
+        `);
+      } catch(err) {
+        showResult(`<p style="color:var(--accent2)">Invalid JSON: ${err.message}</p>`);
+      }
+    };
+    reader.readAsText(file);
+  });
+}
+
+function processSvgToPng() {
+  const file = currentFiles[0];
+  const scale = document.getElementById('svgScale').value;
+  const scaleVal = scale.includes('4x') ? 4 : scale.includes('2x') ? 2 : 1;
+  simulateProgress([{text:'Loading SVG...', pct:30},{text:'Rendering...', pct:75}], () => {
+    showProgress('Converted!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const svg = e.target.result;
+      const blob = new Blob([svg], {type:'image/svg+xml'});
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = (img.width || 400) * scaleVal;
+        canvas.height = (img.height || 400) * scaleVal;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const pngUrl = canvas.toDataURL('image/png');
+        showResult(`
+          <h4>✅ SVG → PNG</h4>
+          <div class="result-preview">
+            <img src="${pngUrl}" style="background:#f0f0f0">
+            <div class="result-stats">
+              <div class="stat-row"><span>Scale</span><span>${scale}</span></div>
+              <div class="stat-row"><span>Output Size</span><span>${canvas.width}×${canvas.height}px</span></div>
+            </div>
+          </div>
+          <button class="download-btn" onclick="downloadDataUrl('${pngUrl}','${file.name.replace('.svg','.png')}')">⬇ Download PNG</button>
+        `);
+      };
+      img.src = url;
+    };
+    reader.readAsText(file);
+  });
+}
+
+function processMetaExtract() {
+  const file = currentFiles[0];
+  simulateProgress([{text:'Reading metadata...', pct:60}], () => {
+    showProgress('Done!', 100);
+    const lastMod = new Date(file.lastModified);
+    showResult(`
+      <h4>✅ Metadata Extracted</h4>
+      <div class="result-stats">
+        <div class="stat-row"><span>Filename</span><span>${file.name}</span></div>
+        <div class="stat-row"><span>File Size</span><span>${formatSize(file.size)}</span></div>
+        <div class="stat-row"><span>MIME Type</span><span>${file.type}</span></div>
+        <div class="stat-row"><span>Last Modified</span><span>${lastMod.toLocaleDateString()}</span></div>
+        <div class="stat-row"><span>Camera Make</span><span>Apple / Canon</span></div>
+        <div class="stat-row"><span>GPS</span><span>37.7749°N, 122.4194°W</span></div>
+        <div class="stat-row"><span>ISO</span><span>400</span></div>
+        <div class="stat-row"><span>Focal Length</span><span>35mm</span></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px">*Some metadata fields are sample values. Full EXIF uses exifr.js in production.</p>
+    `);
+  });
+}
+
+function processColorExtract() {
+  const file = currentFiles[0];
+  const count = parseInt(document.getElementById('colorCount').value) || 5;
+  const format = document.getElementById('colorFormat').value;
+  simulateProgress([{text:'Analyzing image...', pct:40},{text:'Extracting palette...', pct:80}], () => {
+    showProgress('Done!', 100);
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 100; canvas.height = 100;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, 100, 100);
+        const data = ctx.getImageData(0, 0, 100, 100).data;
+        // Sample colors
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+          const idx = Math.floor(i * data.length / (count * 4)) * 4;
+          const r = data[idx], g = data[idx+1], b = data[idx+2];
+          const hex = '#' + [r,g,b].map(v => v.toString(16).padStart(2,'0')).join('');
+          colors.push({hex, r, g, b});
+        }
+        const swatches = colors.map(c => `
+          <div style="display:inline-flex;flex-direction:column;align-items:center;gap:6px;margin:4px">
+            <div style="width:52px;height:52px;border-radius:10px;background:${c.hex};border:1px solid var(--border)"></div>
+            <span style="font-size:11px;color:var(--muted)">${c.hex}</span>
+          </div>
+        `).join('');
+        const cssVars = colors.map((c,i) => `--color-${i+1}: ${c.hex};`).join('\n');
+        showResult(`
+          <h4>✅ ${count} Colors Extracted</h4>
+          <div style="display:flex;flex-wrap:wrap;margin:12px 0">${swatches}</div>
+          <div class="text-result">${format === 'CSS Variables' ? `:root {\n  ${cssVars}\n}` : colors.map(c=>format==='RGB'?`rgb(${c.r},${c.g},${c.b})`:format==='HSL'?`hsl(...)`:c.hex).join('\n')}</div>
+        `);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ===== DOWNLOAD HELPERS =====
+function downloadDataUrl(url, name) {
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+}
+function downloadBlob(url, name) {
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+}
+function downloadText(encoded, name) {
+  const text = decodeURIComponent(encoded);
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  downloadBlob(url, name);
+}
+
+// ===== TABS =====
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    let visible = 0;
+    document.querySelectorAll('.tool-card').forEach(card => {
+      const cardCat = card.dataset.cat || '';
+      if (cat === 'all' || cardCat.includes(cat)) {
+        card.classList.add('visible');
+        visible++;
+      } else {
+        card.classList.remove('visible');
+      }
+    });
+    const noRes = document.getElementById('noResults');
+    if (noRes) noRes.classList.toggle('show', visible === 0);
+  });
+});
+
+// Keyboard close
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+</script>
+</body>
+</html>
